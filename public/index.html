@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GLS Cost Analysis</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <h1>GameLift Streams — Cost Analysis</h1>
+      <nav class="tab-nav">
+        <a href="/" class="tab-link active">Session Usage</a>
+        <a href="/capacity.html" class="tab-link">Capacity (Always-On)</a>
+      </nav>
+    </div>
+    <div class="header-actions">
+      <span id="last-fetched" class="meta"></span>
+      <button id="btn-fetch" class="btn btn-primary">Fetch from AWS</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Summary cards -->
+    <section id="summary" class="cards">
+      <div class="card">
+        <div class="card-label">Total Sessions</div>
+        <div class="card-value" id="total-sessions">—</div>
+        <div class="card-sub" id="avg-sessions-period"></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Total Minutes</div>
+        <div class="card-value" id="total-minutes">—</div>
+        <div class="card-sub" id="avg-minutes-period"></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Total Hours</div>
+        <div class="card-value" id="total-hours">—</div>
+        <div class="card-sub" id="avg-hours-period"></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Avg Session (min)</div>
+        <div class="card-value" id="avg-session">—</div>
+      </div>
+      <div class="card card-cost">
+        <div class="card-label">Estimated Cost</div>
+        <div class="card-value" id="total-cost">—</div>
+        <div class="card-sub" id="avg-cost-period"></div>
+      </div>
+    </section>
+
+    <!-- Controls -->
+    <section class="controls">
+      <div class="control-group">
+        <label>Group by:</label>
+        <div class="btn-group" id="granularity">
+          <button class="btn btn-sm active" data-value="day">Day</button>
+          <button class="btn btn-sm" data-value="week">Week</button>
+          <button class="btn btn-sm" data-value="month">Month</button>
+        </div>
+      </div>
+      <div class="control-group">
+        <label>Stream Class:</label>
+        <select id="stream-class-filter">
+          <option value="all">All</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Chart -->
+    <section class="chart-container">
+      <canvas id="chart"></canvas>
+    </section>
+
+    <!-- Data table -->
+    <section class="table-container">
+      <h2>Session Minutes by <span id="table-granularity">Day</span></h2>
+      <table id="data-table">
+        <thead>
+          <tr>
+            <th>Period</th>
+            <th>Sessions</th>
+            <th>Total Minutes</th>
+            <th>Total Hours</th>
+            <th>Est. Cost</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Breakdown by stream class -->
+    <section class="table-container">
+      <h2>Breakdown by Stream Class</h2>
+      <table id="class-table">
+        <thead>
+          <tr>
+            <th>Stream Class</th>
+            <th>Sessions</th>
+            <th>Total Minutes</th>
+            <th>Total Hours</th>
+            <th>Est. Cost</th>
+            <th>Rate</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Pricing editor -->
+    <section class="table-container">
+      <h2>Pricing Rates</h2>
+      <p class="pricing-note">Adjust hourly rates per stream class. Costs recalculate automatically.</p>
+      <div id="pricing-inputs" class="pricing-grid"></div>
+    </section>
+
+    <!-- Status overlay -->
+    <div id="overlay" class="overlay hidden">
+      <div class="overlay-content">
+        <div class="spinner"></div>
+        <p id="overlay-msg">Fetching data from AWS...</p>
+      </div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

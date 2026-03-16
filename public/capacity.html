@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GLS Cost Analysis — Capacity</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <h1>GameLift Streams — Capacity Costs</h1>
+      <nav class="tab-nav">
+        <a href="/" class="tab-link">Session Usage</a>
+        <a href="/capacity.html" class="tab-link active">Capacity (Always-On)</a>
+      </nav>
+    </div>
+    <div class="header-actions">
+      <span id="last-fetched" class="meta"></span>
+      <button id="btn-fetch" class="btn btn-primary">Fetch from CloudWatch</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Summary cards -->
+    <section class="cards">
+      <div class="card">
+        <div class="card-label">Allocated Instance-Hrs</div>
+        <div class="card-value" id="total-instance-hours">—</div>
+        <div class="card-sub" id="avg-instance-hours"></div>
+      </div>
+      <div class="card card-cost">
+        <div class="card-label">Allocated Cost</div>
+        <div class="card-value" id="total-always-on-cost">—</div>
+        <div class="card-sub" id="avg-always-on-cost"></div>
+      </div>
+      <div class="card card-waste">
+        <div class="card-label">Idle Instance-Hrs</div>
+        <div class="card-value" id="total-idle-hours">—</div>
+        <div class="card-sub" id="avg-idle-hours"></div>
+      </div>
+      <div class="card card-waste">
+        <div class="card-label">Wasted Cost (Idle)</div>
+        <div class="card-value" id="total-waste-cost">—</div>
+        <div class="card-sub" id="avg-waste-cost"></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Utilisation</div>
+        <div class="card-value" id="utilisation-pct">—</div>
+      </div>
+    </section>
+
+    <!-- Controls -->
+    <section class="controls">
+      <div class="control-group">
+        <label>Group by:</label>
+        <div class="btn-group" id="granularity">
+          <button class="btn btn-sm active" data-value="day">Day</button>
+          <button class="btn btn-sm" data-value="week">Week</button>
+          <button class="btn btn-sm" data-value="month">Month</button>
+        </div>
+      </div>
+      <div class="control-group">
+        <label>Stream Group:</label>
+        <select id="group-filter">
+          <option value="all">All</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Chart -->
+    <section class="chart-container">
+      <canvas id="chart"></canvas>
+    </section>
+
+    <!-- Chart: allocated vs idle -->
+    <section class="chart-container">
+      <canvas id="waste-chart"></canvas>
+    </section>
+
+    <!-- Period table -->
+    <section class="table-container">
+      <h2>Capacity by <span id="table-granularity">Day</span></h2>
+      <table id="data-table">
+        <thead>
+          <tr>
+            <th>Period</th>
+            <th>Allocated Inst-Hrs</th>
+            <th>Idle Inst-Hrs</th>
+            <th>Utilisation</th>
+            <th>Allocated Cost</th>
+            <th>Wasted Cost</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Breakdown by stream group -->
+    <section class="table-container">
+      <h2>Breakdown by Stream Group</h2>
+      <table id="group-table">
+        <thead>
+          <tr>
+            <th>Stream Group</th>
+            <th>Stream Class</th>
+            <th>Location</th>
+            <th>Allocated Inst-Hrs</th>
+            <th>Idle Inst-Hrs</th>
+            <th>Utilisation</th>
+            <th>Allocated Cost</th>
+            <th>Wasted Cost</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Pricing editor -->
+    <section class="table-container">
+      <h2>Pricing Rates</h2>
+      <p class="pricing-note">Same rates as session page. Adjust hourly rates per stream class.</p>
+      <div id="pricing-inputs" class="pricing-grid"></div>
+    </section>
+
+    <!-- Overlay -->
+    <div id="overlay" class="overlay hidden">
+      <div class="overlay-content">
+        <div class="spinner"></div>
+        <p id="overlay-msg">Fetching capacity data from CloudWatch...</p>
+      </div>
+    </div>
+  </main>
+
+  <script src="capacity.js"></script>
+</body>
+</html>
